@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 # pylint: disable=C0116
-
 import logging
 
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackContext
+from telegram.ext import CallbackContext
+from telegram.ext import CommandHandler
+from telegram.ext import Updater
 
+from . import config
+from . import parser
 # My bike check
-from . import parser, config
 
 # Config with token
 
