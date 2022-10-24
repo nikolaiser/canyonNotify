@@ -1,61 +1,39 @@
 # About
 
-It is a python bot that will check availability of a Canyon bike for you. 
+It is a python bot that will check availability of a Canyon bike for you.
 Add a link to the bike that you want. Start the bot. Run `\notify` in the bot.
 It will inform you if the status of any of your tracked bikes has changed
 
-# Installation
+## What differentiates this fork from the main project?
 
-Install the dependencies
+* the application is now a python package being configured via environment variables
+* added docker image
+* docker image is being build via CI/CD & pushed to docker hub
+* security updates are being pushed via dependabot
 
-```bash
-sudo apt update && sudo apt upgrade -y
-sudo apt install python3 
-pip3 install -r requirements.txt 
-```
-
-Optionally you can run it in venv
+## Installation
 
 ```bash
-sudo apt update && sudo apt upgrade -y
-sudo apt install python3 
-sudo apt install python3-pip
-pip3 install virtualenv
-python3 -m virtualenv env
-source env/bin/activate
-pip3 install -r requirements.txt 
+# build the docker image
+docker build . --tag canyon-notifier:latest
+
+# run the container - you can add multiple bikes!
+docker run --rm -it --name canyon-notifier \
+    -e TOKEN="API_TOKEN" \
+    -e CANYON_BIKE_0="Ultimate CF SL 8 Aero - Deep Polar" \
+    -e CANYON_BIKE_0_URL="https://www.canyon.com/en-de/road-bikes/race-bikes/ultimate/cf-sl/ultimate-cf-sl-8-aero/3319.htmls?dwvar_3319_pv_rahmenfarbe=R101_P02" \
+    -e CANYON_BIKE_0_SIZE="M"
 ```
 
-Rename config.example.py to config.py, add your requested Telegram TOKEN (It is requested from 
-`BotFather`) and modify the bikes that you are looking for
+## Bot father
 
-```bash
-mv config.example.py config.py
-vim config.py
-```
+To get the token, you need to create a bot via the bot father. You can find the bot father here: <https://t.me/botfather>
 
-After installation is compelte, just run the main.py
+## Telegram bot commands
 
-```bash
-python3 main.py
-```
-
-Find your bot in Telegram and Done :)
-
-
-# Telegram bot commands
-
-- `/start`
-- `/help`
-- `/notify` - to start notifying you about the availability
-- `/unnotify` - to stop notification
-- `/set` - set time interval inbetween checks
-- `/status` - to do an immediate check and return the availability
-
-
-# Todo
-- Add a test to see if we are online
-- Add an option to add/remove bikes
-- Don't need to have unique jobs per user
-- Put all python in /src folder
-
+* `/start`
+* `/help`
+* `/notify` - to start notifying you about the availability
+* `/unnotify` - to stop notification
+* `/set` - set time interval inbetween checks
+* `/status` - to do an immediate check and return the availability
