@@ -7,9 +7,9 @@ from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext
 
 # My bike check
-import parser
+from . import parser, config
+
 # Config with token
-import config
 
 # Enable logging
 logging.basicConfig(
@@ -24,13 +24,14 @@ interval_map = {}
 
 
 def start(update: Update, _: CallbackContext) -> None:
-    update.message.reply_text('Hi! Use /notify to be notified \n /unnotify to stop bein notified \n /set to set interval')
+    update.message.reply_text(
+        'Hi! Use /notify to be notified \n /unnotify to stop bein notified \n /set to set interval')
 
 
 def run_check(context: CallbackContext) -> None:
     """Run the check and message if there is a change"""
     job = context.job
-    if parser.update():  
+    if parser.update():
         context.bot.send_message(job.context, text=parser.status())
 
 
@@ -60,7 +61,7 @@ def set_notify(update: Update, context: CallbackContext) -> None:
     except:
         interval = config.interval
     context.job_queue.run_repeating(run_check, interval=interval,
-        context=chat_id, name=str(chat_id))
+                                    context=chat_id, name=str(chat_id))
 
     text = 'Notify was succesfully restarted!' if job_removed \
         else 'Notify was succesfully started!'

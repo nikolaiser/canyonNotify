@@ -1,5 +1,5 @@
-from config import bike_map
-from config import log_level
+from .config import bike_map
+from .config import log_level
 from time import sleep
 import logging
 
@@ -15,7 +15,8 @@ def update():
     changed = False
     for bike in bike_map:
         changed |= bike.update()
-    logging.info(f'Status of the bikes was {("NOT changed","changed")[changed]}')
+    logging.info(
+        f'Status of the bikes was {("NOT changed","changed")[changed]}')
     return changed
 
 
@@ -31,6 +32,6 @@ if __name__ == '__main__':
     while True:
         if update():
             print(status())
-        else: 
+        else:
             print(".", end="")
         sleep(60)
