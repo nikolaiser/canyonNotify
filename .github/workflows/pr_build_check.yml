@@ -1,0 +1,55 @@
+# File written by GitHub user MayNiklas, newer versions can be found in https://github.com/MayNiklas/github-actions
+#
+# GitHub action for testing pull requests
+# Checks if container can be build after changes
+#
+# File location: .github/workflows/docker_image.yml
+#
+# Create the following GitHub Action secrets:
+#
+# DOCKER_HUB_USERNAME
+# DOCKER_HUB_REPO
+
+name: test build
+on:
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  build-images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          # list of Docker images to use as base name for tags
+          images: |
+            "${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}"
+          # generate Docker tags based on the following events/attributes
+          tags: |
+            # set latest tag for default branch
+            type=raw,value=latest,enable={{is_default_branch}}
+            # set version tag for git tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build images
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          platforms: linux/amd64
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
