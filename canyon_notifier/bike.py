@@ -3,6 +3,9 @@ import logging
 import requests
 from bs4 import BeautifulSoup
 
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG
+)
 logger = logging.getLogger(__name__)
 
 
@@ -12,13 +15,13 @@ class Bike:
         self.link = link
         self.size = size
         self.avail = False
-        logging.info(f'{name} is created')
+        logger.info(f'{name} is created')
 
     def update(self):
         new_avail = self.parse_url()
         changed = self.avail != new_avail
         self.avail = new_avail
-        logging.info(
+        logger.info(
             f'{self.name} status is {("NOT changed","changed")[changed]}')
         return changed
 
@@ -26,14 +29,19 @@ class Bike:
         req = requests.get(self.link)
         soup = BeautifulSoup(req.text, "html.parser")
 
-        # Get the list of iteams
-        sizes = soup.find_all(class_="productConfiguration__variantType")
-        logging.info(
-            f'{self.name} parse found {len(sizes)} entries')
-        for size in sizes:
-            # Size and availability condition
-            if size.text.strip() == self.size and size.parent.name.strip() == "button":
-                logging.info(f'{self.name} is available in size {self.size}')
+        selector = f".productConfiguration__optionListItem .productConfiguration__selectVariant[data-product-size='{self.size}']"
+
+        desired_element = soup.select_one(selector)
+        if desired_element:
+            inner_html = desired_element.decode_contents()
+            logger.info(f'{inner_html}')
+
+            is_bike_available_to_buy = 'productConfiguration__selectVariant--purchasable' in desired_element.get('class', [])
+            if is_bike_available_to_buy:
+                print(f'{self.name} is available in size {self.size}')
                 return True
-        logging.info(f'{self.name} is NOT available in size {self.size}')
+            logger.info(f'{self.name} is NOT available in size {self.size}')
+        else:
+            inner_html = 'Element not found'
+            logger.error('Bike size not found on the page')
         return False

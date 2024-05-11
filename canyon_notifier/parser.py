@@ -16,7 +16,7 @@ def update():
     changed = False
     for bike in bike_map:
         changed |= bike.update()
-    logging.info(
+    logger.info(
         f'Status of the bikes was {("NOT changed","changed")[changed]}')
     return changed
 
